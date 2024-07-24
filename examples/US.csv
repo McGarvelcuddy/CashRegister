@@ -1,6 +1,6 @@
-name,value
-dollar, 1
-quarter, 0.25
-dime, 0.10
-nickle, 0.05
-penny, 0.01
+singularName,pluralName,value
+dollar,dollars,1
+quarter,quarters,0.25
+dime,dimes,0.10
+nickle,nickle,0.05
+penny,penny,0.01

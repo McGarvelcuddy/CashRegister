@@ -3,7 +3,6 @@ import { ref, watch, defineEmits } from 'vue'
 
 const checkedOptions = ref([])
 
-
 const emit = defineEmits(['update:checkedOptions'])
 
 watch(checkedOptions, (newValue) => {
