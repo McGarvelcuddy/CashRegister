@@ -68,3 +68,13 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+# Personal Notes
+
+This is my first time using Vue so please DO go crazy with code review, as I want to learn as much as possible from this process.
+
+## Thoughts
+- I have example files for the currency files and for the flatfile types in the examples folder for easy reference.
+- My currency randomization is kinda janky but produces funny results frequently if you try it out enough.
+- I couldn't come up with any additional fun ways to allow the user to come up with their own basis of randomization without ballooning the amount of time I would be spending creating a system to read in mathematic equations and execute them or something similar, though I did try to leave the door open by making the ref an array for the selected options.
+- I'm sorry if you like comments instead of self-documenting code.

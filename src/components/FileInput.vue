@@ -85,12 +85,11 @@
     methods: {
       getSelectedOptions(newOptions: string[]) {
         this.checkedOptions = newOptions
-        this.calculateCurrency()
       },
-      getDivisor(newDivisor: number) {
+      setDivisor(newDivisor: number) {
         this.divisor = newDivisor
       },
-      handleFileUpload(event: Event) {
+      handleExchangeFileUpload(event: Event) {
         const input = event.target as HTMLInputElement
         const file = input.files ? input.files[0] : null
         if (file) {
@@ -160,11 +159,11 @@
       <input id="languageUploadButton" type="file" @change="handleLocaleFileUpload" />
     </div>
     <div class="upload-box">
-      <label for="fileUploadButton">File To Be Processed >  </label>
-      <input id="fileUploadButton" type="file" @change="handleFileUpload" />
+      <label for="exchangeFileUploadButton">File To Be Processed >  </label>
+      <input id="exchangeFileUploadButton" type="file" @change="handleExchangeFileUpload" />
     </div>
 
-    <OptionsSelect @update:checked-options="getSelectedOptions" @update:divisible-by="getDivisor"/>
+    <OptionsSelect @update:checked-options="getSelectedOptions" @update:divisible-by="setDivisor"/>
 
     <button @click="downloadFile" :disabled="changeAmount.length <= 0">Download Processed File</button>
   </div>
