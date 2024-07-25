@@ -1,0 +1,27 @@
+[
+    {
+      "singularName": "dollar",
+      "pluralName": "dollars",
+      "value": 1
+    },
+    {
+      "singularName": "quarter",
+      "pluralName": "quarters",
+      "value": 0.25
+    },
+    {
+      "singularName": "dime",
+      "pluralName": "dimes",
+      "value": 0.10
+    },
+    {
+      "singularName": "nickle",
+      "pluralName": "nickle",
+      "value": 0.05
+    },
+    {
+      "singularName": "penny",
+      "pluralName": "pennies",
+      "value": 0.01
+    }
+  ]

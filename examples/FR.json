@@ -1,0 +1,47 @@
+[
+    {
+        "singularName": "euro",
+        "pluralName": "euros",
+        "value": 1
+    },
+    {
+        "singularName": "pièce de 2 euros",
+        "pluralName": "pièces de 2 euros",
+        "value": 2
+    },
+    {
+        "singularName": "pièce de 1 euro",
+        "pluralName": "pièces de 1 euro",
+        "value": 1
+    },
+    {
+        "singularName": "pièce de 50 centimes",
+        "pluralName": "pièces de 50 centimes",
+        "value": 0.50
+    },
+    {
+        "singularName": "pièce de 20 centimes",
+        "pluralName": "pièces de 20 centimes",
+        "value": 0.20
+    },
+    {
+        "singularName": "pièce de 10 centimes",
+        "pluralName": "pièces de 10 centimes",
+        "value": 0.10
+    },
+    {
+        "singularName": "pièce de 5 centimes",
+        "pluralName": "pièces de 5 centimes",
+        "value": 0.05
+    },
+    {
+        "singularName": "pièce de 2 centimes",
+        "pluralName": "pièces de 2 centimes",
+        "value": 0.02
+    },
+    {
+        "singularName": "pièce de 1 centime",
+        "pluralName": "pièces de 1 centime",
+        "value": 0.01
+    }
+]

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Vue from 'vue'
-  import Papa from 'papaparse';
-  import { saveAs } from 'file-saver';
+  import {defineComponent} from 'vue'
+  import Papa from 'papaparse'
+  import { saveAs } from 'file-saver'
   import OptionsSelect from './OptionsSelect.vue'
   import Currency from './../types/Currency'
 
@@ -28,100 +28,151 @@
     },
     {
       "singularName": "penny",
-      "pluralName": "penny",
+      "pluralName": "pennies",
       "value": 0.01
     }
   ]
   
-  function subtractAndRound(given: number, due: number, decimalPlaces: number = 2) {
-    const result = due - given;
+  function subtractAndRound(given: number, due: number) {
+    const result = due - given
     if (result < 0) {
-      return 'Negative Result';
+      return 'Negative Result'
     }
-    return Number(result.toFixed(decimalPlaces));
+    return Number(result.toFixed(2))
   }
 
   function getCurrencyBreakdown(
-    amount: number, currency: Currency[] = defaultCurrency, randomize: boolean = false
+    amount: number|string, randomize: boolean = false, currency: Currency[] = defaultCurrency
   ): { [key: string]: number} {
-    const breakdown: { [key: string]: number} = {};
+    const breakdown: { [key: string]: number} = {}
 
     if (randomize) {
-      currency = currency.slice().sort(() => Math.random() - 0.5);
+      currency = currency.slice().sort(() => Math.random() - 0.5)
     } else {
-      currency = currency.slice().sort((a: Currency, b: Currency) => b.value - a.value);
+      currency = currency.slice().sort((a: Currency, b: Currency) => b.value - a.value)
     }
-
-    for (const coin of currency) {
-      const count = Math.floor(amount / coin.value);
-      if (count > 0) {
-        const name = count > 1 ? coin.pluralName : coin.singularName;
-        breakdown[name] = count;
-        amount -= count * coin.value;
+    if(typeof amount === 'number') {
+      for (const coin of currency) {
+        const count = Math.floor(Number(amount.toFixed(2)) / coin.value)
+        if (count > 0) {
+          const name = count > 1 ? coin.pluralName : coin.singularName
+          breakdown[name] = count
+          amount -= count * coin.value
+        }
       }
     }
 
     return breakdown
   }
 
-  export default Vue.defineComponent({
+  export default defineComponent({
+    name: "file-input",
     components: {
       OptionsSelect
     },
     data() {
       return {
-        fileContent: null as string | ArrayBuffer | null,
+        changeFileContent: null as string | ArrayBuffer | null,
+        localeFileContent: null as string | ArrayBuffer | null,
         processedContent: [] as any[],
-        changeAmount: [] as number[],
+        changeAmount: [] as (number|string)[],
         checkedOptions: [] as string[],
-      };
+        divisor: 3 as number,
+        currentResults: [] as { [key: string]: number}[],
+        currency: defaultCurrency as Currency[]
+      }
     },
     methods: {
       getSelectedOptions(newOptions: string[]) {
         this.checkedOptions = newOptions
-        console.log(this.checkedOptions);
+        this.calculateCurrency()
+      },
+      getDivisor(newDivisor: number) {
+        this.divisor = newDivisor
       },
       handleFileUpload(event: Event) {
-        const input = event.target as HTMLInputElement;
-        const file = input.files ? input.files[0] : null;
+        const input = event.target as HTMLInputElement
+        const file = input.files ? input.files[0] : null
         if (file) {
-          const reader = new FileReader();
+          const reader = new FileReader()
           reader.onload = (e) => {
-            this.fileContent = e.target?.result || null;
-            this.processFileContent();
-          };
-          reader.readAsText(file);
+            try {
+              this.changeFileContent = e.target?.result || null
+              this.processFileContent()
+            } catch (error) {
+              console.error("Error parsing file:", error)
+            }
+            
+          }
+          reader.readAsText(file)
+        }
+      },
+      handleLocaleFileUpload(event: Event) {
+        const input = event.target as HTMLInputElement
+        if (input.files && input.files[0]) {
+          const file = input.files[0]
+          const reader = new FileReader()
+          reader.onload = (e) => {
+            try {
+              const json = e.target?.result as string
+              this.currency = JSON.parse(json)
+            } catch (error) {
+              console.error("Error parsing JSON:", error)
+            }
+          }
+          reader.readAsText(file)
         }
       },
       processFileContent() {
         // Parsing CSV file and converting to JSON
-        Papa.parse(this.fileContent as string, {
+        Papa.parse(this.changeFileContent as string, {
           header: false,
           skipEmptyLines: true,
           complete: (results) => {
-            this.processedContent = results.data as any[];
+            this.processedContent = results.data as any[]
 
-            this.changeAmount = this.processedContent.map((set: any[]) => subtractAndRound(set[0], set[1]) as number);
-            console.log(this.changeAmount);
+            this.changeAmount = this.processedContent.map((set: any[]) => subtractAndRound(set[0], set[1]) as number)
           }
-        });
+        })
       },
       downloadFile() {
-        const csv = Papa.unparse(this.processedContent);
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        saveAs(blob, 'processed_file.csv');
+        this.calculateCurrency()
+        const formattedResults = this.currentResults.map((entry) => {
+          const parts = Object.entries(entry).map(([key, value]) => `${value} ${key}`)
+          return parts.join(',')
+        }).join('\n\n')
+
+        const blob = new Blob([formattedResults], { type: 'text/csvcharset=utf-8' })
+        saveAs(blob, 'processed_file.csv')
       },
+      calculateCurrency() {
+        this.currentResults = this.changeAmount.map((value, index) => getCurrencyBreakdown(value, ((this.processedContent[index][0] * 100) % this.divisor === 0 && this.checkedOptions.includes("÷x")), this.currency))
+      }
     },
   }
 )
 </script>
 
 <template>
-  <div>
-    <input type="file" @change="handleFileUpload" />
-    <br>
-    <OptionsSelect @update:checked-options="getSelectedOptions"/>
-    <br>
-    <button @click="downloadFile">Download Processed File</button>
+  <div :style="{display: 'grid',  justifyItems: 'stretch', rowGap: '1rem'}">
+    <div class="upload-box">
+      <label for="languageUploadButton">Currency Locale To Be Processed (default US) >  </label>
+      <input id="languageUploadButton" type="file" @change="handleLocaleFileUpload" />
+    </div>
+    <div class="upload-box">
+      <label for="fileUploadButton">File To Be Processed >  </label>
+      <input id="fileUploadButton" type="file" @change="handleFileUpload" />
+    </div>
+
+    <OptionsSelect @update:checked-options="getSelectedOptions" @update:divisible-by="getDivisor"/>
+
+    <button @click="downloadFile" :disabled="changeAmount.length <= 0">Download Processed File</button>
   </div>
 </template>
+
+<style scoped>
+.upload-box {
+  border: solid;
+  padding: 1rem;
+}
+</style>
